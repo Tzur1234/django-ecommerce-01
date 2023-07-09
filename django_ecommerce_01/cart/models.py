@@ -1,5 +1,9 @@
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.conf import settings
+from django.db.models.signals import pre_save
+from django.utils.text import slugify
+from django.shortcuts import reverse
 
 
 User = get_user_model()
@@ -28,11 +32,18 @@ class Address(models.Model):
 
 class Product(models.Model):
     title = models.CharField(max_length=150)
-    slug = models.SlugField()
+    slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=False)
+    image = models.ImageField(upload_to='product-image/')
+
+    """
+    The function returns the url for the specific product
+    """
+    def get_absolute_url(self):
+        return reverse("cart:product-details", kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
@@ -84,3 +95,14 @@ class Payment(models.Model):
     @property
     def reference_number(self):
         return f"PAYMENT-{self.order}-{self.pk}"
+    
+
+"""
+The singals complete the slug field based on the title field
+"""
+def pre_save_product_receiver(sender, instance, *args, **kwargs):
+    if not instance.slug:
+        instance.slug = slugify(instance.title)
+
+
+pre_save.connect(pre_save_product_receiver, sender=Product)

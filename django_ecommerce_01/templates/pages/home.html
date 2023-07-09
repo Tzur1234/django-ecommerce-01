@@ -23,9 +23,29 @@
 
     <!-- Customized Bootstrap Stylesheet -->
     <link href="{% static 'assets/css/style.css' %}" rel="stylesheet">
+
+
+    
+    <!-- Loader css -->
+    <link href="{% static 'loader/loader.css' %}" rel="stylesheet">
+
+
 </head>
 
 <body>
+    <!-- Spinner Loader -->
+    <div class="spinner-wrapper" style="display: none;">
+        <div class="spinner-border text-primary" role="status">
+            <span></span>
+        </div>
+    </div>        
+ 
+
+    <div id="message-alert">
+
+    </div>     
+
+
     <!-- Topbar Start -->
     <div class="container-fluid">
         <div class="row bg-secondary py-2 px-xl-5">
@@ -293,7 +313,7 @@
         <div class="row px-xl-5">
             <div class="col-md-6 pb-4">
                 <div class="position-relative bg-secondary text-center text-md-right text-white mb-2 py-5 px-5">
-                    <img src="{% static 'assets/img/offer-1.png" alt="">
+                    <img src="{% static 'assets/img/offer-1.png' %}" alt="">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
                         <h1 class="mb-4 font-weight-semi-bold">Spring Collection</h1>
@@ -303,7 +323,7 @@
             </div>
             <div class="col-md-6 pb-4">
                 <div class="position-relative bg-secondary text-center text-md-left text-white mb-2 py-5 px-5">
-                    <img src="{% static 'assets/img/offer-2.png" alt="">
+                    <img src="{% static 'assets/img/offer-2.png' %}" alt="">
                     <div class="position-relative" style="z-index: 1;">
                         <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
                         <h1 class="mb-4 font-weight-semi-bold">Winter Collection</h1>
@@ -1405,7 +1425,7 @@
                 </p>
             </div>
             <div class="col-md-6 px-xl-0 text-center text-md-right">
-                <img class="img-fluid" src="{% static 'assets/img/payments.png" alt="">
+                <img class="img-fluid" src="{% static 'assets/img/payments.png' %}" alt="">
             </div>
         </div>
     </div>
@@ -1430,7 +1450,9 @@
     <script src="{% static 'assets/js/main.js' %}"></script>
     
     <!-- My Script -->
-    <script src="{% static 'assets/js/script.js' %}"></script>
+    <script src="{% static 'js/UI.js' %}"></script>
+    <script src="{% static 'js/project.js' %}"></script>
+    <script src="{% static 'js/contact.js' %}"></script>
     
 </body>
 
