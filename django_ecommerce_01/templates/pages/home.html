@@ -33,6 +33,9 @@
 </head>
 
 <body>
+
+
+
     <!-- Spinner Loader -->
     <div class="spinner-wrapper" style="display: none;">
         <div class="spinner-border text-primary" role="status">
@@ -213,10 +216,16 @@
     </div>
     <!-- Navbar End -->
 
-<div class="section" id="product-list" style="display: none;">
+<div class="section" id="product-list" style="display: block;">
     <!-- Featured Start -->
     <div class="container-fluid pt-5">
         <div class="row px-xl-5 pb-3">
+
+            <form action="http://localhost:8000/api/cart/add-to-cart/title-1/" method="post">
+                {% csrf_token %}
+                <button type="submit" >Submit</button>
+            </form>
+
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="d-flex align-items-center border mb-4" style="padding: 30px;">
                     <h1 class="fa fa-check text-primary m-0 mr-3"></h1>
@@ -1453,6 +1462,8 @@
     <script src="{% static 'js/UI.js' %}"></script>
     <script src="{% static 'js/project.js' %}"></script>
     <script src="{% static 'js/contact.js' %}"></script>
+
+   
     
 </body>
 

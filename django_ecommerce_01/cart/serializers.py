@@ -3,6 +3,8 @@ from django_ecommerce_01.cart.models import Product
 
 class ProductSerializer(serializers.ModelSerializer):
     product_detail_link = serializers.SerializerMethodField(read_only=True)
+    add_to_cart_link = serializers.SerializerMethodField(read_only=True)
+
     
     class Meta:
         model = Product
@@ -15,6 +17,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'active',
             'image',
             'product_detail_link',
+            'add_to_cart_link',
         )
 
     
@@ -27,4 +30,10 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request is not None:
             return request.build_absolute_uri(obj.get_absolute_url())
+        return None
+    
+    def get_add_to_cart_link(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return request.build_absolute_uri(obj.get_absolute_url_add_to_cart())
         return None

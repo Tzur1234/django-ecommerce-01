@@ -44,6 +44,9 @@ class Product(models.Model):
     """
     def get_absolute_url(self):
         return reverse("cart:product-details", kwargs={'slug': self.slug})
+    
+    def get_absolute_url_add_to_cart(self):
+        return reverse("cart:add-to-cart", kwargs={'slug': self.slug})
 
     def __str__(self):
         return self.title
@@ -60,7 +63,7 @@ class OrderItem(models.Model):
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     start_date = models.DateTimeField(auto_now_add=True)
     ordered_date = models.DateTimeField(blank=True, null=True)
     ordered = models.BooleanField(default=False)
@@ -70,12 +73,12 @@ class Order(models.Model):
     shipping_address = models.ForeignKey(
         Address, related_name='shipping_address', blank=True, null=True, on_delete=models.SET_NULL)
 
-    def __str__(self):
-        return self.reference_number
-
     @property
     def reference_number(self):
         return f"ORDER-{self.pk}"
+
+    def __str__(self):
+        return self.reference_number
 
 
 class Payment(models.Model):
