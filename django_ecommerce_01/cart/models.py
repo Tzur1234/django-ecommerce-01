@@ -9,6 +9,18 @@ from django.shortcuts import reverse
 User = get_user_model()
 
 
+class ColorVariation(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
+class SizeVariation(models.Model):
+    name = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.name
+
 class Address(models.Model):
     ADDRESS_CHOICES = (
         ('B', 'Billing'),
@@ -29,7 +41,6 @@ class Address(models.Model):
     class Meta:
         verbose_name_plural = 'Addresses'
 
-
 class Product(models.Model):
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, blank=True)
@@ -38,6 +49,9 @@ class Product(models.Model):
     updated = models.DateTimeField(auto_now=True)
     active = models.BooleanField(default=False)
     image = models.ImageField(upload_to='product-image/')
+    color_variation = models.ManyToManyField(ColorVariation)
+    size_variation = models.ManyToManyField(SizeVariation)
+
 
     """
     The function returns the url for the specific product
@@ -51,16 +65,16 @@ class Product(models.Model):
     def __str__(self):
         return self.title
 
-
 class OrderItem(models.Model):
     order = models.ForeignKey(
         "Order", related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
+    color = models.ForeignKey(ColorVariation, on_delete=models.CASCADE)
+    size = models.ForeignKey(SizeVariation, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.quantity} x {self.product.title}"
-
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
@@ -79,7 +93,6 @@ class Order(models.Model):
 
     def __str__(self):
         return self.reference_number
-
 
 class Payment(models.Model):
     order = models.ForeignKey(

@@ -21,6 +21,7 @@ class UserAdmin(auth_admin.UserAdmin):
     fieldsets = (
         (None, {"fields": ("email", "password")}),
         (_("Personal info"), {"fields": ("name",)}),
+        (_("Order ID"), {"fields": ("order_id",)}),
         (
             _("Permissions"),
             {

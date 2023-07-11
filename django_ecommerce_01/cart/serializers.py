@@ -1,10 +1,21 @@
 from rest_framework import serializers
-from django_ecommerce_01.cart.models import Product
+from django_ecommerce_01.cart.models import Product, ColorVariation, SizeVariation
+
+class ColorVariationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ColorVariation
+        fields = ('id' ,'name',)
+
+class SizeVariationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SizeVariation
+        fields = ('id' ,'name',)
 
 class ProductSerializer(serializers.ModelSerializer):
     product_detail_link = serializers.SerializerMethodField(read_only=True)
     add_to_cart_link = serializers.SerializerMethodField(read_only=True)
-
+    color_variation = ColorVariationSerializer(many=True, read_only=True)
+    size_variation = SizeVariationSerializer(many=True, read_only=True)
     
     class Meta:
         model = Product
@@ -18,6 +29,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'image',
             'product_detail_link',
             'add_to_cart_link',
+            'color_variation',
+            'size_variation',
         )
 
     

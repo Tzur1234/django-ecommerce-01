@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from django_ecommerce_01.cart.serializers import ProductSerializer
-from django_ecommerce_01.cart.models import Product, OrderItem
+from django_ecommerce_01.cart.models import Product, OrderItem, ColorVariation, SizeVariation, Order
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
-from django_ecommerce_01.cart.utilize import get_or_set_order_session
+from django_ecommerce_01.cart.utilize import get_or_set_order
 from rest_framework import status
 
 
@@ -44,23 +44,39 @@ class AddToCartAPIView(APIView):
     def post(self, request, *args, **kwargs):
 
         try:
-            # Retreive the current active Order
-            order = get_or_set_order_session(request)
+            # Data from the client
             product = Product.objects.get(slug=kwargs['slug'])
+            quantity = request.data["quantity"]
+            color = ColorVariation.objects.get(id=request.data["color_id"])
+            size = SizeVariation.objects.get(id=request.data["size_id"])
 
-            # Bring the OrderItem associated with Order and Product
-            order_item = order.items.filter(product=product)
 
+            # Create / Retreive Order
+            order = get_or_set_order(request)
+
+            # OrderItem 
+            order_item = order.items.filter(product=product,
+                                            color=color,
+                                            size=size,
+                                             )
             
+            # Update exists OrderItem
             if order_item.exists():
                 order_item = order_item.first()
-                order_item.quantity += 1
+                last_quantity = order_item.quantity
+                order_item.quantity = last_quantity + order_item.quantity 
                 order_item.save()
             
             # create new OrderItem
             else:
-                new_order_item = OrderItem(order=order, product=product)
+                new_order_item = OrderItem(order=order,
+                                           product=product,
+                                           size=size,
+                                           color=color,
+                                           quantity=quantity
+                                           )
                 new_order_item.save()
+            
         
         except Exception as e:
             return Response({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
@@ -73,16 +89,11 @@ class AddToCartAPIView(APIView):
         return Response(data, status=status.HTTP_200_OK)
     
 
-        
+
+    
 
         
 
-
-
-
-
-        # Retreive the OrderItem ( if exist)
-
-
-        return Response({"message": f"Authenticated user POST request successful. is Authnticated: {request.user.is_authenticated} "}, status=status.HTTP_200_OK)
+        
+     
 
