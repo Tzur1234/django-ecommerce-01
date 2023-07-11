@@ -51,7 +51,10 @@ class Product(models.Model):
     image = models.ImageField(upload_to='product-image/')
     color_variation = models.ManyToManyField(ColorVariation)
     size_variation = models.ManyToManyField(SizeVariation)
+    price = models.IntegerField(default=0)
 
+    def get_total_price(self):
+        return "{}".format(self.price / 100)
 
     """
     The function returns the url for the specific product
@@ -73,6 +76,14 @@ class OrderItem(models.Model):
     color = models.ForeignKey(ColorVariation, on_delete=models.CASCADE)
     size = models.ForeignKey(SizeVariation, on_delete=models.CASCADE)
 
+    def get_raw_amount_price(self):
+        return self.quantity * self.product.price
+
+    def get_absolute_price(self):
+        raw_price = self.get_raw_amount_price()
+        return raw_price / 100
+
+    
     def get_absolute_delete_url(self):
         return reverse("cart:delete-order-item", kwargs={'id': self.pk})
 

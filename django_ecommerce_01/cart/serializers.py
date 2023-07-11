@@ -14,6 +14,7 @@ class SizeVariationSerializer(serializers.ModelSerializer):
 class ProductSerializer(serializers.ModelSerializer):
     product_detail_link = serializers.SerializerMethodField(read_only=True)
     add_to_cart_link = serializers.SerializerMethodField(read_only=True)
+    price = serializers.SerializerMethodField(read_only=True)
     color_variation = ColorVariationSerializer(many=True, read_only=True)
     size_variation = SizeVariationSerializer(many=True, read_only=True)
     
@@ -31,8 +32,16 @@ class ProductSerializer(serializers.ModelSerializer):
             'add_to_cart_link',
             'color_variation',
             'size_variation',
+            'price',
+
         )
 
+
+    def get_price(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return obj.get_total_price()
+        return None 
     
     """
      provide the value for the product_detail_link field.
@@ -56,6 +65,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
     color = ColorVariationSerializer(read_only=True)
     size = SizeVariationSerializer(read_only=True)
     orderitem_delete_link = serializers.SerializerMethodField(read_only=True)
+    total_price = serializers.SerializerMethodField(read_only=True)
     
     class Meta:
         model = OrderItem
@@ -64,11 +74,17 @@ class OrderItemSerializer(serializers.ModelSerializer):
             'quantity',
             'color',
             'size',
-            'orderitem_delete_link',
+            'orderitem_delete_link',       
+            'total_price',
         )
 
     def get_orderitem_delete_link(self, obj):
         request = self.context.get('request')
         if request is not None:
             return request.build_absolute_uri(obj.get_absolute_delete_url())
+        return None
+    def get_total_price(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return obj.get_absolute_price()
         return None
