@@ -1,12 +1,14 @@
 from django.shortcuts import render
-from django_ecommerce_01.cart.serializers import ProductSerializer
+from django_ecommerce_01.cart.serializers import ProductSerializer, OrderItemSerializer
 from django_ecommerce_01.cart.models import Product, OrderItem, ColorVariation, SizeVariation, Order
+from django_ecommerce_01.cart.permissions import DeleteOrderItemPermission
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
 from django_ecommerce_01.cart.utilize import get_or_set_order
 from rest_framework import status
+
 
 
 class ProductListAPIView(generics.ListAPIView):
@@ -35,9 +37,11 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 
 """
 The view add a new Item to the cart
-if succuss: return the details of the new item
-if fail : return a message    
+request body : quantity (int), size_id (int), color_id (int)
+response : message (string) , alert (string)
 """
+
+
 class AddToCartAPIView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -89,7 +93,62 @@ class AddToCartAPIView(APIView):
         return Response(data, status=status.HTTP_200_OK)
     
 
+class CartAPIView(generics.ListAPIView):
+    """
+    Show all OrderItem for the last order
+    """
+    serializer_class = OrderItemSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
+    def get_queryset(self):
+        # Return all OrderItems that:
+        # points to the same open order
+        # that are stil open
+        return OrderItem.objects.filter(
+            order_id = self.request.user.order_id)
+
+
+# class OrderItemDeleteAPIView(generics.DestroyAPIView):
+#     permission_classes = (DeleteOrderItemPermission,)
+    
+#     def delete(self, request, id):
+#         try:
+#             return Response(status=status.HTTP_204_NO_CONTENT)
+#         except OrderItem.DoesNotExist:
+#             return Response(status=status.HTTP_404_NOT_FOUND)
+    
+class OrderItemDeleteAPIView(generics.DestroyAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    
+    def delete(self, request, id):
+        ## Validation ##
+
+        # Check if the OrderItem exists
+        obj = OrderItem.objects.filter(id=id)
+        if not obj.exists():
+            data = {
+                'message': "The OrderItem you ask to delete doesn't exists",
+                'alert': "warning",
+            }
+            return Response(data ,status=status.HTTP_404_NOT_FOUND)
+        
+        # check if the user allowed to delete this OrderIten istance
+        if request.user != obj.first().order.user :
+            data = {
+                'message': "You are not allowed to commit those changes !",
+                'alert': "danger",
+            }
+            return Response(data, status=status.HTTP_403_FORBIDDEN)
+        
+        order_item = OrderItem.objects.get(id=id)
+        order_item.delete()
+        data = {
+            'message': "Item was removed !",
+            'alert': "success",
+        }
+        return Response(data ,status=status.HTTP_204_NO_CONTENT)
+
+        
     
 
         

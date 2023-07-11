@@ -6,4 +6,6 @@ urlpatterns = [
     path('product-list/', views.ProductListAPIView.as_view(), name='product-list'),
     path('product-details/<slug>/', views.ProductDetailAPIView.as_view(), name='product-details'),
     path('add-to-cart/<slug>/', views.AddToCartAPIView.as_view(), name='add-to-cart'),
+    path('cart-view/', views.CartAPIView.as_view(), name='cart-view'),
+    path('order-item/<int:id>/delete/', views.OrderItemDeleteAPIView.as_view(), name='delete-order-item'),
 ]

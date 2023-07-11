@@ -73,6 +73,9 @@ class OrderItem(models.Model):
     color = models.ForeignKey(ColorVariation, on_delete=models.CASCADE)
     size = models.ForeignKey(SizeVariation, on_delete=models.CASCADE)
 
+    def get_absolute_delete_url(self):
+        return reverse("cart:delete-order-item", kwargs={'id': self.pk})
+
     def __str__(self):
         return f"{self.quantity} x {self.product.title}"
 

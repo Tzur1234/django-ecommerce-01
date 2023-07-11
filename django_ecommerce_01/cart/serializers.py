@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django_ecommerce_01.cart.models import Product, ColorVariation, SizeVariation
+from django_ecommerce_01.cart.models import Product, ColorVariation, SizeVariation, OrderItem
 
 class ColorVariationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -49,4 +49,26 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request is not None:
             return request.build_absolute_uri(obj.get_absolute_url_add_to_cart())
+        return None
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(many=False, read_only=True)
+    color = ColorVariationSerializer(read_only=True)
+    size = SizeVariationSerializer(read_only=True)
+    orderitem_delete_link = serializers.SerializerMethodField(read_only=True)
+    
+    class Meta:
+        model = OrderItem
+        fields = (
+            'product',
+            'quantity',
+            'color',
+            'size',
+            'orderitem_delete_link',
+        )
+
+    def get_orderitem_delete_link(self, obj):
+        request = self.context.get('request')
+        if request is not None:
+            return request.build_absolute_uri(obj.get_absolute_delete_url())
         return None
