@@ -107,16 +107,7 @@ class CartAPIView(generics.ListAPIView):
         return OrderItem.objects.filter(
             order_id = self.request.user.order_id)
 
-
-# class OrderItemDeleteAPIView(generics.DestroyAPIView):
-#     permission_classes = (DeleteOrderItemPermission,)
-    
-#     def delete(self, request, id):
-#         try:
-#             return Response(status=status.HTTP_204_NO_CONTENT)
-#         except OrderItem.DoesNotExist:
-#             return Response(status=status.HTTP_404_NOT_FOUND)
-    
+  
 class OrderItemDeleteAPIView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
@@ -148,11 +139,66 @@ class OrderItemDeleteAPIView(generics.DestroyAPIView):
         }
         return Response(data ,status=status.HTTP_204_NO_CONTENT)
 
-        
-    
 
-        
+class UpdateOrderItemAPIView(generics.UpdateAPIView):
+    """
+    API view that only accepts PUT requests to update an OrderItem.
+    Receieve in the body 'add' parameter that indicates whether the View show add +1 to the OrderItem 
+    or -1
+    """
 
+    permission_classes = (permissions.IsAuthenticated,)
+
+
+    def put(self, request, *args, **kwargs):
+        #  Validation #
+
+        # Check if the OrderItem exists
+        obj = OrderItem.objects.filter(id=kwargs['id'])
+        if not obj.exists():
+            data = {
+                'message': "The OrderItem doesn't exists",
+                'alert': "warning",
+            }
+            return Response(data ,status=status.HTTP_404_NOT_FOUND)
+        
+        # check if the user allowed to delete this OrderIten istance
+        if request.user != obj.first().order.user :
+            data = {
+                'message': "You are not allowed to commit those changes !",
+                'alert': "danger",
+            }
+            return Response(data, status=status.HTTP_403_FORBIDDEN)
+        
+        # UPDATE QUANTITY
+        order_item = OrderItem.objects.get(id=kwargs['id'])
+        add_more_item = request.data.get('add')
+        if add_more_item == 'False':
+            print('False !!!')
+            if order_item.quantity == 1:
+                data = {
+                'message': " There is only one single Item left !",
+                'alert': "warning",
+                }
+            else:                
+                data = {
+                'message': "One item was removed",
+                'alert': "success",
+                }
+                order_item.quantity = order_item.quantity - 1
+                order_item.save()
+
+        else:
+            print('True !!')
+            order_item.quantity = order_item.quantity + 1
+            order_item.save()
+
+            data = {
+                'message': "Item was added !",
+                'alert': "success",
+            }
+        return Response(data ,status=status.HTTP_200_OK)
+        
         
      
 

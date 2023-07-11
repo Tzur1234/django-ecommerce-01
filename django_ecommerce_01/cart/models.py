@@ -86,6 +86,9 @@ class OrderItem(models.Model):
     
     def get_absolute_delete_url(self):
         return reverse("cart:delete-order-item", kwargs={'id': self.pk})
+    
+    def update_quantity_url(self):
+        return reverse("cart:update_order_item", kwargs={'id': self.pk})
 
     def __str__(self):
         return f"{self.quantity} x {self.product.title}"
