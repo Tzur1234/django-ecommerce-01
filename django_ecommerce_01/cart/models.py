@@ -2,6 +2,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.conf import settings
 from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from django.utils.text import slugify
 from django.shortcuts import reverse
 
@@ -22,17 +23,12 @@ class SizeVariation(models.Model):
         return self.name
 
 class Address(models.Model):
-    ADDRESS_CHOICES = (
-        ('B', 'Billing'),
-        ('S', 'Shipping'),
-    )
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     address_line_1 = models.CharField(max_length=150)
     address_line_2 = models.CharField(max_length=150)
     city = models.CharField(max_length=100)
     zip_code = models.CharField(max_length=20)
-    address_type = models.CharField(max_length=1, choices=ADDRESS_CHOICES)
     default = models.BooleanField(default=False)
 
     def __str__(self):
@@ -99,14 +95,31 @@ class Order(models.Model):
     ordered_date = models.DateTimeField(blank=True, null=True)
     ordered = models.BooleanField(default=False)
 
-    billing_address = models.ForeignKey(
-        Address, related_name='billing_address', blank=True, null=True, on_delete=models.SET_NULL)
-    shipping_address = models.ForeignKey(
-        Address, related_name='shipping_address', blank=True, null=True, on_delete=models.SET_NULL)
+    address = models.ForeignKey(
+        Address, related_name='address', blank=True, null=True, on_delete=models.SET_NULL)
+
 
     @property
     def reference_number(self):
         return f"ORDER-{self.pk}"
+
+    def get_subtotal(self):
+        subtotal = 0
+        for order_item in self.items.all():
+            subtotal += order_item.get_raw_amount_price()
+        return subtotal / 100
+    
+    def get_total(self):
+        # include shipping, tax and cuppons
+        subtotal = self.get_subtotal()
+        
+        tax = 0 # can be change
+        shipping = 0 # can be change
+        cuppons = 0 # can be change
+        total = subtotal + tax + shipping - cuppons
+
+        return total    
+
 
     def __str__(self):
         return self.reference_number
@@ -138,4 +151,11 @@ def pre_save_product_receiver(sender, instance, *args, **kwargs):
         instance.slug = slugify(instance.title)
 
 
+
 pre_save.connect(pre_save_product_receiver, sender=Product)
+
+# @receiver(pre_save, sender=Address)
+# def set_default_user(sender, instance, **kwargs):
+#     request = kwargs.get('request')
+#     if not instance.user:
+#         instance.user = request.user

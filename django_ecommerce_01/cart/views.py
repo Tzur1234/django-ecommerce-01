@@ -1,12 +1,12 @@
 from django.shortcuts import render
-from django_ecommerce_01.cart.serializers import ProductSerializer, OrderItemSerializer
-from django_ecommerce_01.cart.models import Product, OrderItem, ColorVariation, SizeVariation, Order
-from django_ecommerce_01.cart.permissions import DeleteOrderItemPermission
+from django_ecommerce_01.cart.serializers import ProductSerializer, OrderItemSerializer, AddressSerializer
+from django_ecommerce_01.cart.models import Product, OrderItem, ColorVariation, SizeVariation, Order, Address
+from django_ecommerce_01.cart.permissions import DeleteOrderItemPermission, IsOwnerOrReadOnly
 from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
-from django_ecommerce_01.cart.utilize import get_or_set_order
+from django_ecommerce_01.cart.utilize import get_or_set_order, check_delete_request, check_update_requst
 from rest_framework import status
 
 
@@ -34,15 +34,12 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     lookup_field = 'slug'  # Set the lookup field to 'slug'
 
 
-
-"""
-The view add a new Item to the cart
-request body : quantity (int), size_id (int), color_id (int)
-response : message (string) , alert (string)
-"""
-
-
 class AddToCartAPIView(APIView):
+    """
+    The view add a new Item to the cart
+    request body : quantity (int), size_id (int), color_id (int)
+    response : message (string) , alert (string)
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
@@ -64,11 +61,10 @@ class AddToCartAPIView(APIView):
                                             size=size,
                                              )
             
-            # Update exists OrderItem
             if order_item.exists():
                 order_item = order_item.first()
                 last_quantity = order_item.quantity
-                order_item.quantity = last_quantity + order_item.quantity 
+                order_item.quantity = last_quantity + order_item.quantity # Update OrderItem quantity
                 order_item.save()
             
             # create new OrderItem
@@ -95,42 +91,58 @@ class AddToCartAPIView(APIView):
 
 class CartAPIView(generics.ListAPIView):
     """
-    Show all OrderItem for the last order
+    Return all OrderItem relate to the user
+    input : No input
+    method: GET 
+    output: JSON response
     """
     serializer_class = OrderItemSerializer
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         # Return all OrderItems that:
-        # points to the same open order
-        # that are stil open
+        # relate to the the last Open Order
         return OrderItem.objects.filter(
-            order_id = self.request.user.order_id)
+        order_id = self.request.user.order_id)
 
-  
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(queryset, many=True)
+        response_data = serializer.data
+
+        # Add extra content to the response
+        try:
+            order_id = request.user.order_id
+            order = Order.objects.get(id=order_id, ordered=False)
+
+            extra_content = {
+            'total': f'{order.get_total()}',
+            'subtotal': f'{order.get_subtotal()}'
+            } 
+
+            # Modify the response data
+            response_data = {
+                'data': serializer.data,
+                'extra_content': extra_content
+            }
+                
+        except Exception as e:
+            print('Error in getting extra data: ', e)
+
+        return Response(response_data)
+
+
 class OrderItemDeleteAPIView(generics.DestroyAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     
     def delete(self, request, id):
+        
         ## Validation ##
+        response_obj = check_delete_request(request, id)
+        if response_obj:
+            return response_obj
 
-        # Check if the OrderItem exists
-        obj = OrderItem.objects.filter(id=id)
-        if not obj.exists():
-            data = {
-                'message': "The OrderItem you ask to delete doesn't exists",
-                'alert': "warning",
-            }
-            return Response(data ,status=status.HTTP_404_NOT_FOUND)
-        
-        # check if the user allowed to delete this OrderIten istance
-        if request.user != obj.first().order.user :
-            data = {
-                'message': "You are not allowed to commit those changes !",
-                'alert': "danger",
-            }
-            return Response(data, status=status.HTTP_403_FORBIDDEN)
-        
+        # Commit delete
         order_item = OrderItem.objects.get(id=id)
         order_item.delete()
         data = {
@@ -143,43 +155,30 @@ class OrderItemDeleteAPIView(generics.DestroyAPIView):
 class UpdateOrderItemAPIView(generics.UpdateAPIView):
     """
     API view that only accepts PUT requests to update an OrderItem.
-    Receieve in the body 'add' parameter that indicates whether the View show add +1 to the OrderItem 
-    or -1
+    Input:  'add' parameter ('True' / 'False') 
+
     """
 
     permission_classes = (permissions.IsAuthenticated,)
 
-
     def put(self, request, *args, **kwargs):
-        #  Validation #
-
-        # Check if the OrderItem exists
-        obj = OrderItem.objects.filter(id=kwargs['id'])
-        if not obj.exists():
-            data = {
-                'message': "The OrderItem doesn't exists",
-                'alert': "warning",
-            }
-            return Response(data ,status=status.HTTP_404_NOT_FOUND)
         
-        # check if the user allowed to delete this OrderIten istance
-        if request.user != obj.first().order.user :
-            data = {
-                'message': "You are not allowed to commit those changes !",
-                'alert': "danger",
-            }
-            return Response(data, status=status.HTTP_403_FORBIDDEN)
+        #  Request Validation #
+        response_obj = check_update_requst(request, kwargs['id'])
+        if response_obj:
+            return response_obj
+
         
         # UPDATE QUANTITY
         order_item = OrderItem.objects.get(id=kwargs['id'])
         add_more_item = request.data.get('add')
         if add_more_item == 'False':
-            print('False !!!')
             if order_item.quantity == 1:
                 data = {
                 'message': " There is only one single Item left !",
                 'alert': "warning",
                 }
+                return Response(data ,status=status.HTTP_403_FORBIDDEN)
             else:                
                 data = {
                 'message': "One item was removed",
@@ -189,7 +188,6 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
                 order_item.save()
 
         else:
-            print('True !!')
             order_item.quantity = order_item.quantity + 1
             order_item.save()
 
@@ -198,7 +196,62 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
                 'alert': "success",
             }
         return Response(data ,status=status.HTTP_200_OK)
-        
-        
+
+
+class AddressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
+    """
+    The view update the user's address.
+    GET : checko if the user has alredy related address object.
+    if not : create a new one and attach it to the user.
+
+    PUT: when receiving PUT request it validates the address data.
+    if validation was successfuly made, it will return 200 response. Else 400
+
+
+    permission: the user can update only it's own data.
+    """
+    permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
+    queryset = Address.objects.all()
+    serializer_class = AddressSerializer
+      
+    def get_object(self):
+        # Retrieve a single instance (Address) based on the user field
+        try:
+            address = Address.objects.get(user=self.request.user)
+        except Address.DoesNotExist:
+            address = Address.objects.create(user=self.request.user)
+
+        return address
+
+    def get(self, request, *args, **kwargs):
+        # Retrieve the instance using get_object() method
+        instance = self.get_object()
+
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        # Retrieve the instance using get_object() method
+        instance = self.get_object()
+
+        # Validate the address data
+        serializer = self.get_serializer(instance, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            data = {
+                'saved_address_info' : serializer.data,
+                'message' : "Your address info was saved",
+                'alert' : "success",
+            }
+            return Response(data, status.HTTP_200_OK)
+        else:
+            data = {
+                'message' : serializer.errors,
+                'alert' : "danger",
+            }
+            return Response(data, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
      
 

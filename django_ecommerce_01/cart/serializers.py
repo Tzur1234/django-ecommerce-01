@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django_ecommerce_01.cart.models import Product, ColorVariation, SizeVariation, OrderItem
+from django_ecommerce_01.cart.models import Product, ColorVariation, SizeVariation, OrderItem, Address
 
 class ColorVariationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -96,3 +96,15 @@ class OrderItemSerializer(serializers.ModelSerializer):
         if request is not None:
             return request.build_absolute_uri(obj.update_quantity_url())
         return None
+
+class AddressSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Address
+        fields = (
+
+            'address_line_1',
+            'address_line_2',
+            'city', 
+            'zip_code',
+            'default',
+        )
