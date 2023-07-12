@@ -83,6 +83,9 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     "django_ecommerce_01.users",
+    "django_ecommerce_01.cart",
+    "django_ecommerce_01.snippets",
+    "django_ecommerce_01.todos",
     # Your stuff: custom apps go here
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps

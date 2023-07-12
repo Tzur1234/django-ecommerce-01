@@ -7,9 +7,13 @@ from django.views.generic import TemplateView
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.authtoken.views import obtain_auth_token
 
+from django_ecommerce_01.snippets import views
+# from django_ecommerce_01.todos import views as todo_views
+from django_ecommerce_01.todos.views import TodoViewSet
+
 urlpatterns = [
     # path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path("", TemplateView.as_view(template_name="pages/test.html"), name="home"),
+    path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
     path("about/", TemplateView.as_view(template_name="pages/about.html"), name="about"),
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
@@ -23,8 +27,19 @@ urlpatterns = [
 urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
+    path("api/cart/", include("django_ecommerce_01.cart.urls", namespace='cart')),
+   
+    # path("api/snippets/", views.SnippetList.as_view()),
+    # path("api/snippets/<int:pk>/", views.SnippetDetail.as_view()),
+    
+    # path("api/todos/", todo_views.TodoListCreateAPIView.as_view()),
+    # path("api/todos/<int:pk>/", todo_views.TodoRetrieveUpdateDestroyAPIView.as_view()),
+  
     # DRF auth token
+    path("api-auth/", include("rest_framework.urls")), 
     path("auth-token/", obtain_auth_token),
+
+    # API doc
     path("api/schema/", SpectacularAPIView.as_view(), name="api-schema"),
     path(
         "api/docs/",
