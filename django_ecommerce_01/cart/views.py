@@ -209,6 +209,7 @@ class AddressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
 
 
     permission: the user can update only it's own data.
+    bla
     """
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
     queryset = Address.objects.all()
