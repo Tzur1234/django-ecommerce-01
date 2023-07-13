@@ -29,6 +29,12 @@
     <!-- Loader css -->
     <link href="{% static 'loader/loader.css' %}" rel="stylesheet">
 
+     <!-- PayPal -->
+     <script src="https://www.paypal.com/sdk/js?client-id={{PAYPAL_CLIENT_ID}}&components=buttons"></script>
+
+
+   
+
 
 </head>
 
@@ -1287,6 +1293,10 @@
                   <div class="card-footer border-secondary bg-transparent">
                       <button class="btn btn-lg btn-block btn-primary font-weight-bold my-3 py-3">Place Order</button>
                   </div>
+                  <div class="card-footer border-secondary bg-transparent">
+                    <div id="paypal-button-container"></div>
+                  </div>
+
               </div>
           </div>
       </div>
@@ -1458,10 +1468,81 @@
     <!-- Template Javascript -->
     <script src="{% static 'assets/js/main.js' %}"></script>
     
+    
     <!-- My Script -->
     <script src="{% static 'js/UI.js' %}"></script>
     <script src="{% static 'js/project.js' %}"></script>
     <script src="{% static 'js/contact.js' %}"></script>
+    <script src="{% static 'js/checkout.js' %}"></script>
+
+    <script>
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        const csrf_token = getCookie('csrftoken')
+
+        
+       paypal.Buttons({
+        createOrder() {
+          return fetch("/api/cart/create-paypal-order/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              'X-CSRFToken': getCookie('csrftoken'), 
+
+            },
+            body: JSON.stringify({
+              cart: [
+                {
+                  sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
+                  quantity: "YOUR_PRODUCT_QUANTITY",
+                },
+              ]
+            })
+          })
+          .then((response) => response.json())
+          .then((order) => {
+                return order.id
+        });
+        },
+        onApprove(data) {
+        // This function captures the funds from the transaction.
+        return fetch("/api/cart/confirm-paypal-order/", {
+        method: "POST",
+        headers: {
+              "Content-Type": "application/json",
+              'X-CSRFToken': getCookie('csrftoken'), 
+        },
+        body: JSON.stringify({
+            orderID: data.orderID
+        })
+        })
+        .then((response) => response.json())
+        .then((details) => {
+        // This function shows a transaction success message to your buyer.
+        alert('Transaction completed by ' + details.payer.name.given_name);
+    
+        });
+        }
+
+      }).render('#paypal-button-container');
+
+</script>
+
+    
 
    
     

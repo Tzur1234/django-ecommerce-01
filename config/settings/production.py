@@ -176,3 +176,10 @@ SPECTACULAR_SETTINGS["SERVERS"] = [  # noqa: F405
 ]
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+
+# PAYPAL
+
+PAYPAL_CLIENT_ID = env("PAYPAL_LIVE_CLIENT_ID") 
+PAYPAL_SECRET_KEY = env("PAYPAL_LIVE_CLIENT_SECRET_KEY") 
+PAYPAL_ACCESS_TOKEN = env("PAYPAL_LIVE_ACCESS_TOKEN") 
