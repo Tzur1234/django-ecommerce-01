@@ -33,7 +33,6 @@ class ProductSerializer(serializers.ModelSerializer):
             'color_variation',
             'size_variation',
             'price',
-
         )
 
 

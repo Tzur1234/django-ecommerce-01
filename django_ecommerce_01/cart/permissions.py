@@ -26,3 +26,7 @@ class DeleteOrderItemPermission(permissions.BasePermission):
         """
         print('Hello')
         return obj.order.user == request.user
+    
+
+
+    

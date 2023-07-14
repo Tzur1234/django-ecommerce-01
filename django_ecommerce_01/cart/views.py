@@ -6,7 +6,10 @@ from rest_framework import generics
 from rest_framework.views import APIView
 from rest_framework import permissions
 from rest_framework.response import Response
-from django_ecommerce_01.cart.utilize import get_or_set_order, check_delete_request, check_update_requst
+from django_ecommerce_01.cart.utilize import (get_or_set_order,
+                                              check_delete_request,
+                                              check_update_requst,
+                                              check_create_paypal_order_request)
 from rest_framework import status
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -14,6 +17,7 @@ import requests
 import json
 from django.shortcuts import reverse
 from django.http import JsonResponse
+import ast
 
 
 class HomeView(TemplateView):
@@ -27,7 +31,9 @@ class HomeView(TemplateView):
 
 class ProductListAPIView(generics.ListAPIView):
     """
-    Show all product in the list
+    accepted methods : GET
+    return : Json response - list of products
+
     """
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
@@ -38,7 +44,8 @@ class ProductListAPIView(generics.ListAPIView):
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
     """
-    Show all product in the list
+    Accepted methods: GET request + slug
+    Return: a single product instance 
     """
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
@@ -51,7 +58,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 class AddToCartAPIView(APIView):
     """
     The view add a new Item to the cart
-    request body : quantity (int), size_id (int), color_id (int)
+    request(body) : quantity (int), size_id (int), color_id (int)
     response : message (string) , alert (string)
     """
     permission_classes = [permissions.IsAuthenticated]
@@ -68,7 +75,7 @@ class AddToCartAPIView(APIView):
             # Create / Retreive Order
             order = get_or_set_order(request)
 
-            # OrderItem
+            # Search for existing OrderItem
             order_item = order.items.filter(product=product,
                                             color=color,
                                             size=size,
@@ -91,7 +98,11 @@ class AddToCartAPIView(APIView):
                 new_order_item.save()
 
         except Exception as e:
-            return Response({'error': e}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            data = {
+                'message': f"Error",
+                'alert': 'danger'
+            }
+            return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         data = {
             'message': f"The item {product.title}, was added to the cart !",
@@ -121,7 +132,8 @@ class CartAPIView(generics.ListAPIView):
         serializer = self.get_serializer(queryset, many=True)
         response_data = serializer.data
 
-        # Add extra content to the response
+        # Add extra content to the response:
+        # Total price (calculated)
         try:
             order_id = request.user.order_id
             order = Order.objects.get(id=order_id, ordered=False)
@@ -144,6 +156,11 @@ class CartAPIView(generics.ListAPIView):
 
 
 class OrderItemDeleteAPIView(generics.DestroyAPIView):
+    """
+    Accept method : DELETE
+    Return: 204 Response if delet was successfuly completed
+    Else: Return False
+     """
     permission_classes = (permissions.IsAuthenticated,)
 
     def delete(self, request, id):
@@ -211,15 +228,12 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
 class AddressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
     """
     The view update the user's address.
-    GET : checko if the user has alredy related address object.
-    if not : create a new one and attach it to the user.
+    GET : check if the user has already Address object.
+    if not : Create a new one and attach it to the user.
 
-    PUT: when receiving PUT request it validates the address data.
-    if validation was successfuly made, it will return 200 response. Else 400
+    PUT: Validates the address data. Than Update it.
 
-
-    permission: the user can update only it's own data.
-    bla
+    Permissions (IsOwnerOrReadOnly): the user can update only it's own data.
     """
     permission_classes = (permissions.IsAuthenticated, IsOwnerOrReadOnly,)
     queryset = Address.objects.all()
@@ -276,11 +290,14 @@ def get_access_token():
     }
     auth = (settings.PAYPAL_CLIENT_ID, settings.PAYPAL_SECRET_KEY)
     response = requests.post(url, headers=headers, data=data, auth=auth)
-    response_json =  response.json()
+    response_json = response.json()
     return response_json['access_token']
 
 
 def capture_payment_details(orderID):
+    """
+    Rce
+    """
     access_token = get_access_token()
     if settings.DEBUG:
         url = f"https://api-m.sandbox.paypal.com/v2/checkout/orders/{orderID}/capture"
@@ -295,6 +312,7 @@ def capture_payment_details(orderID):
     data = response.json()
     return data
 
+
 class CreateOrderAPIView(APIView):
     """
     get request
@@ -304,28 +322,48 @@ class CreateOrderAPIView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
+
+        # Validation #
+
+        response_obj = check_create_paypal_order_request(request)
+        if response_obj:
+            return response_obj
+
         # create accessToken using your clientID and clientSecret
         access_token = get_access_token()
+        order = Order.objects.get(id=request.user.order_id)
+
         headers = {
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {access_token}',           
+            'Authorization': f'Bearer {access_token}',
         }
         data = {
-                'intent': 'CAPTURE',
-                'purchase_units': [
-                    {
-                        'amount': {
-                            'currency_code': 'USD',
-                            'value': '100.00'
+            'intent': 'CAPTURE',
+            'purchase_units': [
+                {
+                    'amount': {
+                        'currency_code': 'USD',
+                        'value': f'{order.get_total()}'
+                    },
+                    'shipping': {
+                        'address': {
+                            'address_line_1': '123 Main St',
+                            'address_line_2': 'Apt 4B',
+                            'admin_area_2': 'City',
+                            'admin_area_1': 'State',
+                            'postal_code': '12345',
+                            'country_code': 'US'
                         }
                     }
-                ],
-            }
-       
+                }
+            ],
+        }
+
         response = requests.post('https://api-m.sandbox.paypal.com/v2/checkout/orders',
                                  headers=headers, data=json.dumps(data))
         response_json = response.json()
         return JsonResponse(response_json)
+
 
 class ConfirmOrderAPIView(APIView):
     permission_classes = [permissions.AllowAny]
@@ -338,6 +376,3 @@ class ConfirmOrderAPIView(APIView):
 
         # Return your response
         return Response(response_data)
-
-
-
