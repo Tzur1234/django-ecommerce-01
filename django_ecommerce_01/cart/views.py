@@ -1,6 +1,12 @@
 from django.shortcuts import render
 from django_ecommerce_01.cart.serializers import ProductSerializer, OrderItemSerializer, AddressSerializer
-from django_ecommerce_01.cart.models import Product, OrderItem, ColorVariation, SizeVariation, Order, Address
+from django_ecommerce_01.cart.models import (Product,
+                                            OrderItem,
+                                            ColorVariation,
+                                            SizeVariation,
+                                            Order,
+                                            Address,
+                                            Payment)
 from django_ecommerce_01.cart.permissions import DeleteOrderItemPermission, IsOwnerOrReadOnly
 from rest_framework import generics
 from rest_framework.views import APIView
@@ -18,6 +24,7 @@ import json
 from django.shortcuts import reverse
 from django.http import JsonResponse
 import ast
+import datetime
 
 
 class HomeView(TemplateView):
@@ -33,13 +40,13 @@ class ProductListAPIView(generics.ListAPIView):
     """
     accepted methods : GET
     return : Json response - list of products
-
     """
+    permission_classes = [permissions.IsAuthenticated]
+
+
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-    permission_classes = (
-        permissions.AllowAny,
-    )
+
 
 
 class ProductDetailAPIView(generics.RetrieveAPIView):
@@ -65,13 +72,28 @@ class AddToCartAPIView(APIView):
 
     def post(self, request, *args, **kwargs):
 
+        # Product validation
         try:
-            # Data from the client
             product = Product.objects.get(slug=kwargs['slug'])
-            quantity = request.data["quantity"]
-            color = ColorVariation.objects.get(id=request.data["color_id"])
-            size = SizeVariation.objects.get(id=request.data["size_id"])
+        except Exception as e:
+            data = {
+                'message': 'The product you ask to add to the cart does not exits',
+                'alert': 'danger'
+            }
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
 
+        if not product.active:
+            data = {
+                'message': 'The product you ask to add is not available',
+                'alert': 'info'
+            }
+            return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
+
+        quantity = request.data["quantity"]
+        color = ColorVariation.objects.get(id=request.data["color_id"])
+        size = SizeVariation.objects.get(id=request.data["size_id"])
+
+        try:
             # Create / Retreive Order
             order = get_or_set_order(request)
 
@@ -99,7 +121,7 @@ class AddToCartAPIView(APIView):
 
         except Exception as e:
             data = {
-                'message': f"Error",
+                'message': f"Error: {e}",
                 'alert': 'danger'
             }
             return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -136,6 +158,10 @@ class CartAPIView(generics.ListAPIView):
         # Total price (calculated)
         try:
             order_id = request.user.order_id
+
+            if order_id == -1:
+                return Response({'message': 'Your Cart is empty', 'alert': 'info'}, status=status.HTTP_501_NOT_IMPLEMENTED)
+
             order = Order.objects.get(id=order_id, ordered=False)
 
             extra_content = {
@@ -337,6 +363,7 @@ class CreateOrderAPIView(APIView):
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {access_token}',
         }
+
         data = {
             'intent': 'CAPTURE',
             'purchase_units': [
@@ -366,13 +393,63 @@ class CreateOrderAPIView(APIView):
 
 
 class ConfirmOrderAPIView(APIView):
+    """
+    Recieve orderID and check:
+    1. If Payment was made succesfully -> Update the
+    2. If the payment wasn't made successfuly : return error massage
+
+    """
+
+
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         order_id = request.data.get('orderID')
         # Use the order_id as needed in your logic
-        print('order_id: ', order_id)
         response_data = capture_payment_details(order_id)
 
+
+        status = response_data.get('status')
+        if status == 'COMPLETED':
+
+       
+            # Update last Order status
+            order = Order.objects.filter(user=request.user).order_by('-start_date').first()
+            order.ordered = True
+            order.ordered_date = datetime.date.today()
+            order.save()
+            request.user.order_id = -1 
+            request.user.save()
+
+
+            # Create new payment object:
+            payment = Payment.objects.create(
+                order=order,
+                successful=True,
+                raw_response=json.dumps(response_data),
+                amount=float(response_data["purchase_units"][0]["payments"]["captures"][0]["amount"]["value"]),
+                payment_method='PayPal'
+            )
+
+            data = {
+                'message' : 'You have successfully made the payment !',
+                'alert' : 'success',
+            }
+
+            status = 200
+        else:
+            data = {
+                'message' : 'There was a problem with your payment process. Please try again later or choose a different payment method.',
+                'alert' : 'success',
+            }
+            status = 404
+
+
+
+        
+        response_data['data'] = data
+
         # Return your response
-        return Response(response_data)
+        return Response(response_data, status=status)
+        
+

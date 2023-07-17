@@ -31,6 +31,7 @@
 
      <!-- PayPal -->
      <script src="https://www.paypal.com/sdk/js?client-id={{PAYPAL_CLIENT_ID}}&components=buttons"></script>
+     
 
 
    
@@ -222,140 +223,11 @@
     </div>
     <!-- Navbar End -->
 
-<div class="section" id="product-list" style="display: none;">
-    <!-- Featured Start -->
-    <div class="container-fluid pt-5">
-        <div class="row px-xl-5 pb-3">
-
-            <form action="http://localhost:8000/api/cart/add-to-cart/title-1/" method="post">
-                {% csrf_token %}
-                <button type="submit" >Submit</button>
-            </form>
-
-            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-                <div class="d-flex align-items-center border mb-4" style="padding: 30px;">
-                    <h1 class="fa fa-check text-primary m-0 mr-3"></h1>
-                    <h5 class="font-weight-semi-bold m-0">Quality Product</h5>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-                <div class="d-flex align-items-center border mb-4" style="padding: 30px;">
-                    <h1 class="fa fa-shipping-fast text-primary m-0 mr-2"></h1>
-                    <h5 class="font-weight-semi-bold m-0">Free Shipping</h5>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-                <div class="d-flex align-items-center border mb-4" style="padding: 30px;">
-                    <h1 class="fas fa-exchange-alt text-primary m-0 mr-3"></h1>
-                    <h5 class="font-weight-semi-bold m-0">14-Day Return</h5>
-                </div>
-            </div>
-            <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
-                <div class="d-flex align-items-center border mb-4" style="padding: 30px;">
-                    <h1 class="fa fa-phone-volume text-primary m-0 mr-3"></h1>
-                    <h5 class="font-weight-semi-bold m-0">24/7 Support</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Featured End -->
-
-
-    <!-- Categories Start -->
-    <div class="container-fluid pt-5">
-        <div class="row px-xl-5 pb-3">
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-1.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Men's dresses</h5>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-2.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Women's dresses</h5>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-3.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Baby's dresses</h5>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-4.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Accerssories</h5>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-5.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Bags</h5>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6 pb-1">
-                <div class="cat-item d-flex flex-column border mb-4" style="padding: 30px;">
-                    <p class="text-right">15 Products</p>
-                    <a href="" class="cat-img position-relative overflow-hidden mb-3">
-                        <img class="img-fluid" src="{% static 'assets/img/cat-6.jpg' %}" alt="">
-                    </a>
-                    <h5 class="font-weight-semi-bold m-0">Shoes</h5>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Categories End -->
-
-
-    <!-- Offer Start -->
-    <div class="container-fluid offer pt-5">
-        <div class="row px-xl-5">
-            <div class="col-md-6 pb-4">
-                <div class="position-relative bg-secondary text-center text-md-right text-white mb-2 py-5 px-5">
-                    <img src="{% static 'assets/img/offer-1.png' %}" alt="">
-                    <div class="position-relative" style="z-index: 1;">
-                        <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
-                        <h1 class="mb-4 font-weight-semi-bold">Spring Collection</h1>
-                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 pb-4">
-                <div class="position-relative bg-secondary text-center text-md-left text-white mb-2 py-5 px-5">
-                    <img src="{% static 'assets/img/offer-2.png' %}" alt="">
-                    <div class="position-relative" style="z-index: 1;">
-                        <h5 class="text-uppercase text-primary mb-3">20% off the all order</h5>
-                        <h1 class="mb-4 font-weight-semi-bold">Winter Collection</h1>
-                        <a href="" class="btn btn-outline-primary py-md-2 px-md-3">Shop Now</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- Offer End -->
+<div class="section" id="product-list" style="display: block;">
 
 
     <!-- Products Start -->
     <div class="container-fluid pt-5">
-        <div class="text-center mb-4">
-            <h2 class="section-title px-5"><span class="px-2">Trandy Products</span></h2>
-        </div>
         <div class="row px-xl-5 pb-3">
             <div class="col-lg-3 col-md-6 col-sm-12 pb-1">
                 <div class="card product-item border-0 mb-4">
@@ -668,7 +540,7 @@
 
 </div>
     
-<div id="product-detail" style="display: none;">
+<div id="product-detail" style="display: block;">
        
         <!-- Page Header Start -->
       <div class="container-fluid bg-secondary mb-5">
@@ -923,7 +795,7 @@
 </div>
 
 
-<div class="section" id="cart" style="display: block;">
+<div class="section" id="cart" style="display: none ;">
     <!-- Page Header Start -->
       <div class="container-fluid bg-secondary mb-5">
         <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
@@ -1099,7 +971,7 @@
 </div>
   
 
-<div class="section" id="checkout" style="display: block;">
+<div class="section" id="checkout" style="display: none;">
     <!-- Page Header Start -->
     <div class="container-fluid bg-secondary mb-5">
       <div class="d-flex flex-column align-items-center justify-content-center" style="min-height: 300px">
@@ -1470,13 +1342,12 @@
     
     
     <!-- My Script -->
+
     <script src="{% static 'js/UI.js' %}"></script>
-    <script src="{% static 'js/project.js' %}"></script>
+    <script src="{% static 'js/product-list.js' %}"></script>
     <script src="{% static 'js/contact.js' %}"></script>
-    <script src="{% static 'js/checkout.js' %}"></script>
-
+    
     <script>
-
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -1492,29 +1363,31 @@
             }
             return cookieValue;
         }
+
         const csrf_token = getCookie('csrftoken')
 
-        
-       paypal.Buttons({
+        paypal.Buttons({
+        // This function sends a request for an OrderId,
+        // which is required for the client to continue with the purchase process.
         createOrder() {
-          return fetch("/api/cart/create-paypal-order/", {
+        return fetch("/api/cart/create-paypal-order/", {
             method: "POST",
             headers: {
-              "Content-Type": "application/json",
-              'X-CSRFToken': getCookie('csrftoken'), 
+            "Content-Type": "application/json",
+            'X-CSRFToken': getCookie('csrftoken'), 
 
             },
             body: JSON.stringify({
-              cart: [
+            cart: [
                 {
-                  sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
-                  quantity: "YOUR_PRODUCT_QUANTITY",
+                sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
+                quantity: "YOUR_PRODUCT_QUANTITY",
                 },
-              ]
+            ]
             })
-          })
-          .then((response) => response.json())
-          .then((order) => {
+        })
+        .then((response) => response.json())
+        .then((order) => {
                 return order.id
         });
         },
@@ -1523,8 +1396,8 @@
         return fetch("/api/cart/confirm-paypal-order/", {
         method: "POST",
         headers: {
-              "Content-Type": "application/json",
-              'X-CSRFToken': getCookie('csrftoken'), 
+            "Content-Type": "application/json",
+            'X-CSRFToken': getCookie('csrftoken'), 
         },
         body: JSON.stringify({
             orderID: data.orderID
@@ -1534,13 +1407,16 @@
         .then((details) => {
         // This function shows a transaction success message to your buyer.
         alert('Transaction completed by ' + details.payer.name.given_name);
-    
+        console.log(details);
+
+
         });
         }
 
-      }).render('#paypal-button-container');
+        }).render('#paypal-button-container');
 
-</script>
+    </script>
+
 
     
 
