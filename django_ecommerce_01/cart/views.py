@@ -203,7 +203,7 @@ class OrderItemDeleteAPIView(generics.DestroyAPIView):
             'message': "Item was removed !",
             'alert': "success",
         }
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
+        return Response(data, status=status.HTTP_200_OK)
 
 
 class UpdateOrderItemAPIView(generics.UpdateAPIView):

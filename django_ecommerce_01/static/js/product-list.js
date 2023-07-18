@@ -1,41 +1,39 @@
 
 window.addEventListener('load', getAllProducts)
 
+const UIinstance = new UI();
 
 
-
-
+//  PRODUCT-LIST
 
 function getAllProducts() {
-    const UIinstance = new UI();
-    const csrf_token = UIinstance.getCookie('csrftoken')
-
+    
+    UIinstance.showDiv('product-list') // show section
+    UIinstance.viewLoader('product-list', 'block') // show loader
 
     fetch('/api/cart/product-list/', {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
-          'X-CSRFToken': getCookie('csrftoken')
+          'X-CSRFToken': UIinstance.getCookie('csrftoken')
         }
       })      
       .then(response => response.json())
       .then(data => {
         console.log(data);
-        insertProductUI(data)
-        EventToViewDetailButton() // add event to all buttons
-
-        
+        insertProductsUI(data)
+                
       })
       .catch(error => {
         console.error(error);
         // Handle the error
+      })
+      .finally(() => {
+        UIinstance.viewLoader('product-list', 'none'); // hide loader        
       });
   }
 
-
-
-
-function insertProductUI(data) {
+function insertProductsUI(data) {
 
     // Get the container element for the products
     const container = document.querySelector('#product-list .container-fluid .row');
@@ -63,7 +61,7 @@ function insertProductUI(data) {
             </div>
           </div>
           <div class="card-footer d-flex justify-content-between bg-light border">
-            <a href="${product.product_detail_link}" id='btn-view-detail' class="btn btn-sm text-dark p-0"><i class="fas fa-eye text-primary mr-1"></i>View Detail</a>
+            <a onclick="getProductDetails(event)" href="${product.product_detail_link}" id='btn-view-detail' class="btn btn-sm text-dark p-0"><i onclick="getProductDetails(event)" href="${product.product_detail_link}" class="fas fa-eye text-primary mr-1"></i>View Detail</a>
             <a href="${product.add_to_cart_link}" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
           </div>
         </div>
@@ -75,33 +73,19 @@ function insertProductUI(data) {
   }
 
 
-function EventToViewDetailButton(){
-    // Add event listener for 'View Details' buttons
-
-
-    // Select all the "View Detail" buttons
-    const viewDetailButtons = document.querySelectorAll('#btn-view-detail');
- 
-    // Loop through each button and attach event listener
-    viewDetailButtons.forEach(function(button) {
-    button.addEventListener('click', function(e) {
-        // Show product details
-
-        e.preventDefault()
-        // the url for product-detail
-        const url = button.getAttribute('href');
-        getProductDetails(url)
-    });
-    });
-}
-
-
 
 
 
 // PRODUCT DETAILS
-function getProductDetails(url){
-    const UIinstance = new UI();
+function getProductDetails(e){
+
+    e.preventDefault()
+    // the url for product-detail
+    const url = e.target.getAttribute('href');
+
+    
+    UIinstance.showDiv('product-detail') // show product-detail section
+    UIinstance.viewLoader('product-detail', 'block') // show loader
 
 
     fetch(url, {
@@ -114,9 +98,6 @@ function getProductDetails(url){
       .then(response => response.json())
       .then(product => {
         console.log(product);
-        product.size_variation.forEach(function(size, index) {
-            console.log(size.name)
-        })
         insertProductDetailsUI(product);
         editColorSizeVariation(product)
 
@@ -124,22 +105,22 @@ function getProductDetails(url){
       .catch(error => {
         console.error(error);
         // Handle the error
+      })
+      .finally(() => {
+        UIinstance.viewLoader('product-detail', 'none'); // hide loader        
       });
 
 }
 
-
-
 // PRODUCT-DETAILS-UI
 function insertProductDetailsUI(product){
        // Get the container element for the products
-       const container = document.querySelector('#product-detail .container-fluid .row');
+       const container = document.querySelectorAll('#product-detail .container-fluid ')[2];
 
        container.innerHTML = 
 
        `
 
-       <div class="container-fluid py-5">
     <div class="row px-xl-5">
         <div class="col-lg-5 pb-5">
             <div id="product-carousel" class="carousel slide" data-ride="carousel">
@@ -229,14 +210,14 @@ function insertProductDetailsUI(product){
                         <i class="fa fa-minus"></i>
                         </button>
                     </div>
-                    <input type="text" class="form-control bg-secondary text-center" value="1">
+                    <input id="quantity" type="text" class="form-control bg-secondary text-center" value="1">
                     <div class="input-group-btn">
                         <button class="btn btn-primary btn-plus">
                             <i class="fa fa-plus"></i>
                         </button>
                     </div>
                 </div>
-                <button id="add-to-cart" class="btn btn-primary px-3"><i class="fa fa-shopping-cart mr-1"></i> Add To Cartttt</button>
+                <button href="${product.add_to_cart_link}" id="add-to-cart" class="btn btn-primary px-3" onclick="addToCart(event)"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
             </div>
             <div class="d-flex pt-2">
                 <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
@@ -312,7 +293,7 @@ function insertProductDetailsUI(product){
                         <div class="col-md-6">
                             <h4 class="mb-4">1 review for "Colorful Stylish Shirt"</h4>
                             <div class="media mb-4">
-                                <img src="{% static 'assets/img/user.jpg' %}" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
+                                <img src="http://localhost:8000/static/img/user.jpg" alt="Image" class="img-fluid mr-3 mt-1" style="width: 45px;">
                                 <div class="media-body">
                                     <h6>John Doe<small> - <i>01 Jan 2045</i></small></h6>
                                     <div class="text-primary mb-2">
@@ -362,7 +343,6 @@ function insertProductDetailsUI(product){
             </div>
         </div>
     </div>
-</div>
        
        `
 
@@ -389,7 +369,7 @@ function editColorSizeVariation(product){
             div.classList.add('custom-control', 'custom-radio', 'custom-control-inline');
 
           
-            div.innerHTML = `<input type="radio" class="custom-control-input" id="size-${size.id}" name="${size.id}">
+            div.innerHTML = `<input type="radio" class="custom-control-input" id="size-${size.id}" name="size" value="${size.id}">
                <label class="custom-control-label" for="size-${size.id}">${size.name}</label> `
 
             SizeForm.appendChild(div)
@@ -406,7 +386,7 @@ function editColorSizeVariation(product){
             div.classList.add('custom-control', 'custom-radio', 'custom-control-inline');
 
           
-            div.innerHTML = `<input type="radio" class="custom-control-input" id="color-${color.id}" name="${color.id}">
+            div.innerHTML = `<input type="radio" class="custom-control-input" id="color-${color.id}" name="color" value="${color.id}">
                <label class="custom-control-label" for="color-${color.id}">${color.name}</label> `
 
             ColorForm.appendChild(div)
@@ -421,15 +401,7 @@ function editColorSizeVariation(product){
 
 
 
-// ADD-TO-CART-EVENT
 
 
-
-function addToCart(e){
-    e.preventDefault();
-    console.log('add to cart')
-
-
-}
 
 

@@ -19,15 +19,16 @@ class UI {
       }
     }
 
-    // show loader-spiner
-    showLoader(){
-        const spiner = document.querySelector('.spinner-wrapper')
-        spiner.style.display = 'block'
-    }
-    // hide loader-spiner
-    hideLoader(){
-        const spiner = document.querySelector('.spinner-wrapper')
-        spiner.style.display = 'none'
+
+ 
+    viewLoader(section_id, display){
+      // The function receives section_id and display mode (none / block)
+      //  according to the parameters, the function hide / display the spinner loader in the relevant section
+
+      const choosedSection = document.getElementById(section_id);     
+      const spinnerLoader = choosedSection.querySelector('#spinner-loader');
+      spinnerLoader.style.display = display;
+
     }
 
     showAlert(type, message) {
@@ -81,6 +82,9 @@ class UI {
 
 
 }
+
+
+
 
 
 
