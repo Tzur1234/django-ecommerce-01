@@ -62,7 +62,6 @@ function insertProductsUI(data) {
           </div>
           <div class="card-footer d-flex justify-content-between bg-light border">
             <a onclick="getProductDetails(event)" href="${product.product_detail_link}" id='btn-view-detail' class="btn btn-sm text-dark p-0"><i onclick="getProductDetails(event)" href="${product.product_detail_link}" class="fas fa-eye text-primary mr-1"></i>View Detail</a>
-            <a href="${product.add_to_cart_link}" class="btn btn-sm text-dark p-0"><i class="fas fa-shopping-cart text-primary mr-1"></i>Add To Cart</a>
           </div>
         </div>
       `;

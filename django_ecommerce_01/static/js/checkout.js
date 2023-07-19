@@ -1,64 +1,35 @@
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-const csrf_token = getCookie('csrftoken')
+
+window.addEventListener('load', () => {
+  
+  document.querySelector('#checkout-btn1').addEventListener('click', showCheckout)
+  document.querySelector('#checkout-btn2').addEventListener('click', showCheckout)
+  
+})
+
+function showCheckout(){
+  const UIinstance = new UI();
+  UIinstance.showDiv('checkout') // show the write div element
 
 
-paypal.Buttons({
-createOrder() {
-  return fetch("/api/cart/create-paypal-order/", {
-    method: "POST",
+   // Send the POST request
+   fetch('/api/cart/cart-view/', {
+    method: 'GET',
     headers: {
-      "Content-Type": "application/json",
-      'X-CSRFToken': getCookie('csrftoken'), 
-
-    },
-    body: JSON.stringify({
-      cart: [
-        {
-          sku: "YOUR_PRODUCT_STOCK_KEEPING_UNIT",
-          quantity: "YOUR_PRODUCT_QUANTITY",
-        },
-      ]
-    })
+    'Content-Type': 'application/json',
+    'X-CSRFToken': UIinstance.getCookie('csrftoken')
+    }   
   })
-  .then((response) => response.json())
-  .then((order) => {
-        return order.id
-});
-},
-onApprove(data) {
-// This function captures the funds from the transaction.
-return fetch("/api/cart/confirm-paypal-order/", {
-method: "POST",
-headers: {
-      "Content-Type": "application/json",
-      'X-CSRFToken': getCookie('csrftoken'), 
-},
-body: JSON.stringify({
-    orderID: data.orderID
-})
-})
-.then((response) => response.json())
-.then((details) => {
-// This function shows a transaction success message to your buyer.
-alert('Transaction completed by ' + details.payer.name.given_name);
-console.log(details);
+  .then(response => response.json())
+  .then(data => {
+      console.log(data.extra_content);
+
+      // Insert total price data
+      document.querySelector('#total-checkout').innerHTML = `$${data.extra_content.total}`
+      
+  })
+  .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+  })
 
 
-});
 }
-
-}).render('#paypal-button-container');

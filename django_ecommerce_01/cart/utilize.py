@@ -1,16 +1,22 @@
-from django_ecommerce_01.cart.models import Order, Address
-from django_ecommerce_01.cart.models import OrderItem
+from django_ecommerce_01.cart.models import (Order,
+                                             Address,
+                                             OrderItem,
+                                             Product,
+                                             )
 from rest_framework.response import Response
 from rest_framework import status
 
-"""
-The funcion check if the user has associated open Order
-if not -
-1. create a new Order
-2. Keep the Order id in the the session
-2. Associate order to the user
-"""
 def get_or_set_order(request):
+    """
+    Checks if the user has an open order and creates a new order if not found.
+    Returns the order object.
+
+    Parameters:
+    - request (HttpRequest): The HTTP request object containing user information.
+
+    Returns:
+    - order (Order): The newly created or existing order associated with the user.
+    """
     order_id = request.user.order_id
 
     if order_id == -1:
@@ -29,7 +35,6 @@ def get_or_set_order(request):
               order.save()
               request.user.order_id = order.id # Attach User -> Oder
               request.user.save()
-
 
     return order
 
@@ -88,7 +93,28 @@ def check_update_requst(request, id):
                 'alert': "danger",
             }
             return Response(data, status=status.HTTP_403_FORBIDDEN)
+
+def check_add_to_cart_request(kwargs):
         
+        # VALIDATION #
+        
+
+        try:
+            product = Product.objects.get(slug=kwargs['slug'])
+        except Exception as e:
+            data = {
+                'message': 'The product you ask to add to the cart does not exits',
+                'alert': 'danger'
+            }
+            return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+        if not product.active:
+            data = {
+                'message': 'The product you ask to add is not available',
+                'alert': 'info'
+            }
+            return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)   
+
 def check_create_paypal_order_request(request):
      
      """

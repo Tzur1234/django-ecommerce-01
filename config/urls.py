@@ -28,13 +28,7 @@ urlpatterns += [
     # API base url
     path("api/", include("config.api_router")),
     path("api/cart/", include("django_ecommerce_01.cart.urls", namespace='cart')),
-   
-    # path("api/snippets/", views.SnippetList.as_view()),
-    # path("api/snippets/<int:pk>/", views.SnippetDetail.as_view()),
     
-    # path("api/todos/", todo_views.TodoListCreateAPIView.as_view()),
-    # path("api/todos/<int:pk>/", todo_views.TodoRetrieveUpdateDestroyAPIView.as_view()),
-  
     # DRF auth token
     path("api-auth/", include("rest_framework.urls")), 
     path("auth-token/", obtain_auth_token),

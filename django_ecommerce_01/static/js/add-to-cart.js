@@ -44,7 +44,8 @@ function addToCart(e){
 
         })
         .catch(error => {
-            console.error('There was a problem with the fetch operation:', error);
+            console.log(error)
+            UIinstance.showAlert('danger', error)
         })
         .finally(() => {
             UIinstance.viewLoader('product-detail', 'none') // show loader

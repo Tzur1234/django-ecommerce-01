@@ -15,7 +15,9 @@ from rest_framework.response import Response
 from django_ecommerce_01.cart.utilize import (get_or_set_order,
                                               check_delete_request,
                                               check_update_requst,
-                                              check_create_paypal_order_request)
+                                              check_create_paypal_order_request,
+                                              check_add_to_cart_request)
+                                              
 from rest_framework import status
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -64,31 +66,26 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
 
 class AddToCartAPIView(APIView):
     """
-    The view add a new Item to the cart
-    request(body) : quantity (int), size_id (int), color_id (int)
-    response : message (string) , alert (string)
+    Adds a new item to the cart.
+
+    Request (body):
+    - quantity (int): The quantity of the item.
+    - size_id (int): The ID of the size for the item.
+    - color_id (int): The ID of the color for the item.
+
+    Response:
+    - message (string): A message indicating the status of the operation.
+    - alert (string): An additional alert or notification related to the operation.
     """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request, *args, **kwargs):
 
-        # Product validation
-        try:
-            product = Product.objects.get(slug=kwargs['slug'])
-        except Exception as e:
-            data = {
-                'message': 'The product you ask to add to the cart does not exits',
-                'alert': 'danger'
-            }
-            return Response(data, status=status.HTTP_404_NOT_FOUND)
+        # request validation
+        response = check_add_to_cart_request(kwargs)
+        if response: return response
 
-        if not product.active:
-            data = {
-                'message': 'The product you ask to add is not available',
-                'alert': 'info'
-            }
-            return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
-
+        product = Product.objects.get(slug=kwargs['slug'])
         quantity = request.data["quantity"]
         color = ColorVariation.objects.get(id=request.data["color_id"])
         size = SizeVariation.objects.get(id=request.data["size_id"])
@@ -247,6 +244,8 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
             data = {
                 'message': "Item was added !",
                 'alert': "success",
+                'sub_total': order_item.order.get_subtotal(),
+                'total': order_item.order.get_total()
             }
         return Response(data, status=status.HTTP_200_OK)
 
@@ -345,7 +344,7 @@ class CreateOrderAPIView(APIView):
     send request to paypal-server to create new order
     return paypal-order object back to the client
     """
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
 
@@ -358,6 +357,8 @@ class CreateOrderAPIView(APIView):
         # create accessToken using your clientID and clientSecret
         access_token = get_access_token()
         order = Order.objects.get(id=request.user.order_id)
+
+        print('access_token: ', access_token)
 
         headers = {
             'Content-Type': 'application/json',
@@ -389,6 +390,7 @@ class CreateOrderAPIView(APIView):
         response = requests.post('https://api-m.sandbox.paypal.com/v2/checkout/orders',
                                  headers=headers, data=json.dumps(data))
         response_json = response.json()
+        print
         return JsonResponse(response_json)
 
 

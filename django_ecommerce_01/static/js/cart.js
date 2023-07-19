@@ -212,6 +212,7 @@ function sendUpdateOrderItemRquest(add, update_url, e){
     })
     .then(data => {
       console.log(data);
+      console.log(data.total);
 
       // Update iNPUT TAG
       const trTag = moveUpToTR(e.target)
@@ -221,6 +222,10 @@ function sendUpdateOrderItemRquest(add, update_url, e){
       } else {
         inputTag.value = parseInt(inputTag.value) - 1;
       }
+
+      // Update total Order price
+      document.querySelector('#sub_total').innerHTML = `$${data.sub_total}`
+      document.querySelector('#total').innerHTML = `$${data.total + 10}`
 
       // Send Message
       UIinstance.showAlert(data.alert, data.message)
