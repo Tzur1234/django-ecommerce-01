@@ -10,4 +10,6 @@ urlpatterns = [
     path('order-item/<int:id>/delete/', views.OrderItemDeleteAPIView.as_view(), name='delete-order-item'),
     path('update-order-item/<int:id>/', views.UpdateOrderItemAPIView.as_view(), name='update_order_item'),
     path('address/', views.AddressUpdateRetrieveAPIView.as_view(), name='get-set-address'),
+    path('create-paypal-order/', views.CreateOrderAPIView.as_view(), name='get-set-address'),
+    path('confirm-paypal-order/', views.ConfirmOrderAPIView.as_view(), name='confirm-paypal-order'),
 ]

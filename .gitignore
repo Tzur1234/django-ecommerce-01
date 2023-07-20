@@ -277,4 +277,5 @@ django_ecommerce_01/media/
 .ipython/
 .env
 .envs/*
-!.envs/.local/
+# !.envs/.local/
+.envs/.local/

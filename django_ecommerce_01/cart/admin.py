@@ -6,11 +6,12 @@ from django_ecommerce_01.cart.models import (
     OrderItem,
     ColorVariation,
     SizeVariation,
-    Address
+    Address,
+    Payment,
     )
 
 class OrderItemAdmin(admin.ModelAdmin):
-    list_filter = ['order__user'] 
+    list_filter = ['order__user', 'order'] 
     list_display = ['pk' ,"order", "quantity", 'product']
 
 class AddressAdmin(admin.ModelAdmin):
@@ -23,10 +24,39 @@ class AddressAdmin(admin.ModelAdmin):
                     'default',
                     ]
 
+class PaymentAdmin(admin.ModelAdmin):
+    list_display = [
+                    'order',
+                    'payment_method',
+                    'timestamp',
+                    'successful',
+                    'amount',
+                    'raw_response',
+                    ]
+    list_filter = ['order'] 
 
 
-admin.site.register(Product)
-admin.site.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ['reference_number', 'ordered']
+    list_filter = ['user'] 
+
+
+class ProductAdmin(admin.ModelAdmin):
+    list_display = (
+        'title',
+        'slug',
+        'created',
+        'price',
+        'active',
+    )
+    list_editable = ('slug', 'active',)
+
+
+
+
+admin.site.register(Product, ProductAdmin)
+admin.site.register(Payment, PaymentAdmin)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderItem, OrderItemAdmin)
 admin.site.register(Address, AddressAdmin)
 admin.site.register(ColorVariation)

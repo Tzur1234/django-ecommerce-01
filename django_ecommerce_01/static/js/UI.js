@@ -19,15 +19,16 @@ class UI {
       }
     }
 
-    // show loader-spiner
-    showLoader(){
-        const spiner = document.querySelector('.spinner-wrapper')
-        spiner.style.display = 'block'
-    }
-    // hide loader-spiner
-    hideLoader(){
-        const spiner = document.querySelector('.spinner-wrapper')
-        spiner.style.display = 'none'
+
+ 
+    viewLoader(section_id, display){
+      // The function receives section_id and display mode (none / block)
+      //  according to the parameters, the function hide / display the spinner loader in the relevant section
+
+      const choosedSection = document.getElementById(section_id);     
+      const spinnerLoader = choosedSection.querySelector('#spinner-loader');
+      spinnerLoader.style.display = display;
+
     }
 
     showAlert(type, message) {
@@ -60,8 +61,30 @@ class UI {
       alertContainer.appendChild(alertDiv);
     }
     
+    // get csrf token
+    getCookie(name) {
+      let cookieValue = null;
+      if (document.cookie && document.cookie !== '') {
+          const cookies = document.cookie.split(';');
+          for (let i = 0; i < cookies.length; i++) {
+              const cookie = cookies[i].trim();
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+  }
+
+  
+
 
 }
+
+
+
 
 
 

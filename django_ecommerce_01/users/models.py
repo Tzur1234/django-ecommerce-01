@@ -13,7 +13,7 @@ class User(AbstractUser):
     If adding fields that need to be filled at user signup,
     check forms.SignupForm and forms.SocialSignupForms accordingly.
     """
-    order_id = models.IntegerField(default=-1)
+    order_id = models.IntegerField(default=-1, help_text="(The order ID of the last open Order)")
     # First and last name do not cover name patterns around the globe
     name = CharField(_("Name of User"), blank=True, max_length=255)
     first_name = None  # type: ignore
