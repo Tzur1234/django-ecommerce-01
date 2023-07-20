@@ -135,11 +135,12 @@ def check_create_paypal_order_request(request):
      
      ####
 
-     if not Address.objects.filter(user=request.user).exists():
-          data = {
-               'message': 'You have to set your address in the system before continue',
-               'alert' : 'info'
-            }
-          return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
+    # !!! improve latter !!!
+    #  if not Address.objects.filter(user=request.user).exists():
+    #       data = {
+    #            'message': 'You have to set your address in the system before continue',
+    #            'alert' : 'info'
+    #         }
+    #       return Response(data, status=status.HTTP_406_NOT_ACCEPTABLE)
           
      
