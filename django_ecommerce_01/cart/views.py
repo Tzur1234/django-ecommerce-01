@@ -58,9 +58,7 @@ class ProductDetailAPIView(generics.RetrieveAPIView):
     """
     serializer_class = ProductSerializer
     queryset = Product.objects.all()
-    permission_classes = (
-        permissions.AllowAny,
-    )
+    permission_classes = (permissions.AllowAny,)
     lookup_field = 'slug'  # Set the lookup field to 'slug'
 
 
@@ -250,7 +248,7 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class AddressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
+class Add2ressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
     """
     The view update the user's address.
     GET : check if the user has already Address object.
