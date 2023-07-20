@@ -248,7 +248,7 @@ class UpdateOrderItemAPIView(generics.UpdateAPIView):
         return Response(data, status=status.HTTP_200_OK)
 
 
-class Add2ressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
+class AddressUpdateRetrieveAPIView(generics.RetrieveUpdateAPIView):
     """
     The view update the user's address.
     GET : check if the user has already Address object.
@@ -346,8 +346,8 @@ class CreateOrderAPIView(APIView):
 
     def post(self, request):
 
-        # Validation #
 
+        # Validation #
         response_obj = check_create_paypal_order_request(request)
         if response_obj:
             return response_obj
@@ -388,7 +388,6 @@ class CreateOrderAPIView(APIView):
         response = requests.post('https://api-m.sandbox.paypal.com/v2/checkout/orders',
                                  headers=headers, data=json.dumps(data))
         response_json = response.json()
-        print
         return JsonResponse(response_json)
 
 
