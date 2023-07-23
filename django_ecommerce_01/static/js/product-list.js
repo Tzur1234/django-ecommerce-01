@@ -22,6 +22,10 @@ function getAllProducts() {
       .then(data => {
         console.log(data);
         insertProductsUI(data)
+        
+        // Update Product cart icon:
+        document.querySelectorAll('.badge')[1].innerHTML = localStorage.getItem('items_count')
+
                 
       })
       .catch(error => {
@@ -52,7 +56,9 @@ function insertProductsUI(data) {
       card.innerHTML = `
         <div class="card product-item border-0 mb-4">
           <div class="card-header product-img position-relative overflow-hidden bg-transparent border p-0">
-            <img class="img-fluid w-100" src="${product.image}" alt="">
+
+                <img onclick="getProductDetails(event)" href="${product.product_detail_link}" class="img-fluid w-100" src="${product.image}" alt="">
+
           </div>
           <div class="card-body border-left border-right text-center p-0 pt-4 pb-3">
             <h6 class="text-truncate mb-3">${product.title}</h6>
@@ -100,6 +106,7 @@ function getProductDetails(e){
         insertProductDetailsUI(product);
         editColorSizeVariation(product)
 
+
       })
       .catch(error => {
         console.error(error);
@@ -113,6 +120,9 @@ function getProductDetails(e){
 
 // PRODUCT-DETAILS-UI
 function insertProductDetailsUI(product){
+
+
+        
        // Get the container element for the products
        const container = document.querySelectorAll('#product-detail .container-fluid ')[2];
 
@@ -202,22 +212,22 @@ function insertProductDetailsUI(product){
                     </div>
                 </form>
             </div>
-            <div class="d-flex align-items-center mb-4 pt-2">
-                <div class="input-group quantity mr-3" style="width: 130px;">
-                    <div class="input-group-btn">
-                        <button class="btn btn-primary btn-minus" >
-                        <i class="fa fa-minus"></i>
-                        </button>
+                <div class="d-flex align-items-center mb-4 pt-2">
+                    <div class="input-group quantity mr-3" style="width: 130px;">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-minus" >
+                            <i class="fa fa-minus"></i>
+                            </button>
+                        </div>
+                        <input  type="text" class="form-control bg-secondary text-center" value="1" id="quantity">
+                        <div class="input-group-btn">
+                            <button class="btn btn-primary btn-plus">
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
-                    <input id="quantity" type="text" class="form-control bg-secondary text-center" value="1">
-                    <div class="input-group-btn">
-                        <button class="btn btn-primary btn-plus">
-                            <i class="fa fa-plus"></i>
-                        </button>
-                    </div>
+                    <button href="${product.add_to_cart_link}" id="add-to-cart" class="btn btn-primary px-3" onclick="addToCart(event)"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
                 </div>
-                <button href="${product.add_to_cart_link}" id="add-to-cart" class="btn btn-primary px-3" onclick="addToCart(event)"><i class="fa fa-shopping-cart mr-1"></i> Add To Cart</button>
-            </div>
             <div class="d-flex pt-2">
                 <p class="text-dark font-weight-medium mb-0 mr-2">Share on:</p>
                 <div class="d-inline-flex">

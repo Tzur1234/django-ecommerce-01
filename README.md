@@ -1,17 +1,15 @@
-# django-ecommerce-01
+# django-ecommerce
 
-an e-commerce platform built with django rest framework
+an e-commerce platform built with django rest framework.
 
-[![Built with Cookiecutter Django](https://img.shields.io/badge/built%20with-Cookiecutter%20Django-ff69b4.svg?logo=cookiecutter)](https://github.com/cookiecutter/cookiecutter-django/)
-[![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 
-License: MIT
 
-## Settings
+## User Guide
 
-Moved to [settings](http://cookiecutter-django.readthedocs.io/en/latest/settings.html).
+To use the application as a user, follow these steps:
 
-## Basic Commands
+1. 
+
 
 ### Setting Up Your Users
 
@@ -52,3 +50,6 @@ The following details how to deploy this application.
 ### Docker
 
 See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
+
+
+License: MIT
