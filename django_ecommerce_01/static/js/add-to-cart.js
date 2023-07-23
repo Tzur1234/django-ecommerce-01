@@ -36,10 +36,14 @@ function addToCart(e){
             return response.json();
         })
         .then(data => {
-            console.log(data);
+            
+            // update number of items
+            document.querySelectorAll('.badge')[1].innerHTML = data.items_count
+            localStorage.setItem('items_count', data.items_count)
 
             // show message
             UIinstance.showAlert(data.alert, data.message)
+            getAllProducts()
 
 
         })

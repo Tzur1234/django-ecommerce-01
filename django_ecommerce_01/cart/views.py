@@ -50,7 +50,6 @@ class ProductListAPIView(generics.ListAPIView):
     queryset = Product.objects.all()
 
 
-
 class ProductDetailAPIView(generics.RetrieveAPIView):
     """
     Accepted methods: GET request + slug
@@ -121,9 +120,11 @@ class AddToCartAPIView(APIView):
             }
             return Response(data, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+        # Sum the number of items related the order 
         data = {
             'message': f"The item {product.title}, was added to the cart !",
-            'alert': 'success'
+            'alert': 'success',
+            'items_count': order.items.count()
         }
         return Response(data, status=status.HTTP_200_OK)
 
