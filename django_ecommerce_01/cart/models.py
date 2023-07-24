@@ -43,7 +43,7 @@ class Product(models.Model):
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True)
     image = models.ImageField(upload_to='product-image/')
     color_variation = models.ManyToManyField(ColorVariation)
     size_variation = models.ManyToManyField(SizeVariation)
