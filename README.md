@@ -8,7 +8,19 @@ an e-commerce platform built with django rest framework.
 
 To use the application as a user, follow these steps:
 
-1. 
+1. Perform a structured registration process. Enter your email address (it is recommended to enter a valid email address as you will need to verify it later through your email account).
+
+2. After registration and logging into the application, you will be able to browse the available items for sale.
+
+3. For each item, you can click on it and a window will immediately open where you can view the item details, add it to the cart, and specify the desired size and color.
+
+4. At the end of the process, click on "Shopping Cart" where you can view all the items you have added to the cart, along with the price for each individual item. The final price will be the total price of the multiplied item price by the number of items requested. You can also remove an item from the list and update the desired number of items for each item. After each update, you can see the real-time update of the final price you need to pay for all the items. 
+
+5. After reviewing all the items you want to purchase, click on "Proceed To CheckOut" and you will immediately see the payment window. Click on the appropriate payment method for you. In the current system, there is a secure connection to a payment system - Paypal. 
+
+6. At the end of the registration process, you will receive a pop-up message confirming that the payment for the order has been successfully received.
+
+
 
 
 ### Setting Up Your Users
