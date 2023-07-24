@@ -1,6 +1,11 @@
-# django-ecommerce
+# Django E-Commerce
 
-an e-commerce platform built with django rest framework.
+Welcome to the Django E-Commerce platform! This project is built using Django Rest Framework, providing a robust and versatile e-commerce solution. Explore the various features and functionalities that make this platform a great choice for your online business needs. Start browsing and start selling with Django E-Commerce!
+
+
+Deployed app link: https://stingray-app-bh6xi.ondigitalocean.app/
+Video link for full demo: https://youtu.be/ryRmNT0XnTw 
+
 
 
 
@@ -21,47 +26,18 @@ To use the application as a user, follow these steps:
 6. At the end of the registration process, you will receive a pop-up message confirming that the payment for the order has been successfully received.
 
 
+## .envs/
+
+To successfully run the project, please contact tzurjob09@gmail.com to obtain the necessary keys for your application. Without these keys, the project won't function as intended. It's crucial to have these keys to ensure a smooth and complete execution of the project.
 
 
-### Setting Up Your Users
 
-- To create a **normal user account**, just go to Sign Up and fill out the form. Once you submit it, you'll see a "Verify Your E-mail Address" page. Go to your console to see a simulated email verification message. Copy the link into your browser. Now the user's email should be verified and ready to go.
-
-- To create a **superuser account**, use this command:
-
-      $ python manage.py createsuperuser
-
-For convenience, you can keep your normal user logged in on Chrome and your superuser logged in on Firefox (or similar), so that you can see how the site behaves for both kinds of users.
-
-### Type checks
-
-Running type checks with mypy:
-
-    $ mypy django_ecommerce_01
-
-### Test coverage
-
-To run the tests, check your test coverage, and generate an HTML coverage report:
-
-    $ coverage run -m pytest
-    $ coverage html
-    $ open htmlcov/index.html
-
-#### Running tests with pytest
-
-    $ pytest
-
-### Live reloading and Sass CSS compilation
-
-Moved to [Live reloading and SASS compilation](https://cookiecutter-django.readthedocs.io/en/latest/developing-locally.html#sass-compilation-live-reloading).
 
 ## Deployment
 
-The following details how to deploy this application.
+For deploying the application, refer to the file ".env_template_production/production_.env_template.txt." This file provides a comprehensive explanation of the keys you need to have to successfully deploy the application. Make sure to follow the instructions in the template to ensure a smooth and successful deployment process.
 
-### Docker
 
-See detailed [cookiecutter-django Docker documentation](http://cookiecutter-django.readthedocs.io/en/latest/deployment-with-docker.html).
 
 
 License: MIT
