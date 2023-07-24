@@ -36,14 +36,14 @@ class Address(models.Model):
 
     class Meta:
         verbose_name_plural = 'Addresses'
-
+# bla
 class Product(models.Model):
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, blank=True)
     description = models.TextField()
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    active = models.BooleanField(default=False)
+    active = models.BooleanField(default=True, null=False)
     image = models.ImageField(upload_to='product-image/')
     color_variation = models.ManyToManyField(ColorVariation)
     size_variation = models.ManyToManyField(SizeVariation)
