@@ -36,7 +36,7 @@ class Address(models.Model):
 
     class Meta:
         verbose_name_plural = 'Addresses'
-# 
+# bla
 class Product(models.Model):
     title = models.CharField(max_length=150)
     slug = models.SlugField(unique=True, blank=True)
